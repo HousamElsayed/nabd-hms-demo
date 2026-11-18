@@ -322,6 +322,8 @@ function bindQueue(el) {
 App.pages.bookings = (function () {
   const st = { date: null, doctor: '', dept: '', branch: '', shift: '', source: '', q: '', tab: 'all', view: 'list', reports: true };
   return {
+    // used by other pages to open bookings pre-filtered (e.g. one clinic)
+    open(filters) { Object.assign(st, { doctor: '', dept: '', branch: '', shift: '', source: '', q: '', tab: 'all' }, filters || {}); App.go('#/bookings'); },
     render(el) {
       const { L, N, esc, icon, money, nf } = UI; const db = Store.db;
       if (!st.date) st.date = UI.isoDay(new Date());
@@ -376,12 +378,11 @@ App.pages.bookings = (function () {
       const body = el.querySelector('#bBody');
       if (st.view === 'list') {
         body.innerHTML = UI.table([
-          { label: '#', w: '44px', render: (a, i) => `<span class="muted num">${nf(i + 1)}</span>` },
-          { label: L('اسم المريض', 'Patient'), render: a => { const p = Store.get.patient(a.patientId); return `<a href="#/patients/${p.id}" class="cell-main">${esc(N(p.name))}</a><div class="cell-sub">${L('الموعد', 'Time')}: <b>${UI.ftime(a.start)}</b> · <span class="ltr">${a.id}</span></div>`; } },
-          { label: L('رقم الهاتف', 'Phone'), render: a => `<span class="ltr small">${Store.get.patient(a.patientId).phone}</span>` },
+          { label: L('الموعد', 'Time'), render: a => `<b class="num">${UI.ftime(a.start)}</b>` },
+          { label: L('اسم المريض', 'Patient'), render: a => { const p = Store.get.patient(a.patientId); return `<a href="#/patients/${p.id}" class="cell-main">${esc(N(p.name))}</a><div class="cell-sub"><span class="ltr">${p.phone}</span></div>`; } },
           { label: L('العيادة / الطبيب', 'Clinic / doctor'), render: a => `<div class="small" style="font-weight:600"><span class="dept-dot" style="background:${Store.get.dept(a.dept).color}"></span> ${esc(N(Store.get.dept(a.dept).name))}</div><div class="cell-sub">${esc(N(Store.get.doctor(a.doctorId).name))}</div>` },
-          { label: L('الخدمات', 'Services'), render: a => a.services.map(s => `<span class="tag">${esc(N(Store.get.service(s).name))}</span>`).join(' ') },
-          { label: L('المصدر', 'Source'), render: a => `${UI.srcBadge(a.source)}${a.externalRef ? `<div class="cell-sub ltr">${a.externalRef}</div>` : ''}` },
+          { label: L('الخدمات', 'Services'), cls: 'wrap', render: a => a.services.map(s => `<span class="tag">${esc(N(Store.get.service(s).name))}</span>`).join(' ') },
+          { label: L('المصدر', 'Source'), render: a => `${UI.srcBadge(a.source)}${a.externalRef ? `<div class="cell-sub"><span class="ltr">${a.externalRef}</span></div>` : ''}` },
           { label: L('الإجمالي', 'Total'), render: a => `<span class="num">${money(a.invoiceId ? Store.get.invoice(a.invoiceId).total : a.fee)}</span>` },
           { label: L('الحالة', 'Status'), render: a => `${UI.statusBadge(a.status)}${a.status === 'arrived' && a.arrivedAt ? `<div class="cell-sub">${icon('timer', 'ic-sm')} ${L('ينتظر منذ', 'waiting')} ${nf(Math.max(0, Math.round((Date.now() - new Date(a.arrivedAt)) / 60000)))} ${L('د', 'min')}</div>` : ''}` },
           { label: L('الإجراءات', 'Actions'), render: a => actions(a) }
@@ -395,8 +396,8 @@ App.pages.bookings = (function () {
       function actions(a) {
         const role = Store.me().role; const front = ['admin', 'reception'].includes(role); const clin = role === 'doctor' || role === 'admin';
         const b = [];
-        if (a.status === 'pending' && front) b.push(`<button class="btn sm soft" data-act="confirmed" data-id="${a.id}">${icon('check')}${L('تأكيد', 'Confirm')}</button>`);
-        if (['pending', 'confirmed'].includes(a.status) && front) b.push(`<button class="btn sm primary" data-act="arrived" data-id="${a.id}">${icon('log-in')}${L('تسجيل حضور', 'Check in')}</button>`);
+        if (a.status === 'pending' && front) b.push(`<button class="btn sm soft icon" title="${L('تأكيد الحجز', 'Confirm booking')}" data-act="confirmed" data-id="${a.id}">${icon('check')}</button>`);
+        if (['pending', 'confirmed'].includes(a.status) && front) b.push(`<button class="btn sm primary" data-act="arrived" data-id="${a.id}">${icon('log-in')}${L('حضور', 'Check in')}</button>`);
         if (a.status === 'arrived' && clin) b.push(`<button class="btn sm primary" data-start="${a.id}">${icon('play')}${L('بدء الكشف', 'Start')}</button>`);
         if (a.status === 'in_progress' && clin) b.push(`<button class="btn sm accent" data-finish="${a.id}">${icon('stethoscope')}${L('إنهاء الكشف', 'Complete')}</button>`);
         if (a.status === 'completed' && a.invoiceId && Store.can('sales')) b.push(`<button class="btn sm icon" title="${L('الفاتورة', 'Invoice')}" data-inv="${a.invoiceId}">${icon('receipt-text')}</button>`);

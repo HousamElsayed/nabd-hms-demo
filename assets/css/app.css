@@ -223,7 +223,13 @@ svg.lucide{width:18px;height:18px;stroke-width:1.9;flex-shrink:0}
 .table-wrap{overflow-x:auto}
 table.tbl{width:100%;border-collapse:collapse;min-width:640px}
 .tbl th{font-size:12px;font-weight:600;color:var(--muted);text-align:start;padding:11px 14px;background:var(--surface-2);border-bottom:1px solid var(--border);white-space:nowrap}
-.tbl td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl td{padding:11px 10px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
+.tbl th{padding-inline:10px}
+.tbl td.wrap{white-space:normal;min-width:140px}
+.g2 table.tbl,.g3 table.tbl{min-width:0}
+.g2 .tbl td,.g3 .tbl td{white-space:normal}
+.tbl td.wrap .cell-main{white-space:normal}
+.tbl td.wrap .tag{margin:2px 0}
 .tbl tr:last-child td{border-bottom:0}
 .tbl tbody tr{transition:background .12s}
 .tbl tbody tr:hover{background:var(--surface-2)}

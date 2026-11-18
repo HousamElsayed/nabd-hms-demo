@@ -11,7 +11,7 @@ window.Store = (function () {
   function load() {
     const raw = ls.get(KEY);
     if (raw) { try { db = JSON.parse(raw); } catch (e) { db = null; } }
-    if (!db || db.version !== 1 || isStale(db)) { db = Seed.generate(); save(); }
+    if (!db || db.version !== 3 || isStale(db)) { db = Seed.generate(); save(); }
     return db;
   }
   // regenerate if demo data was created on an earlier day so "today" always has activity
@@ -67,13 +67,18 @@ window.Store = (function () {
   function logs() {
     const r = role(); if (!r) return [];
     if (r.logDepts === '*') return db.logs;
-    if (isDoctor()) return db.logs.filter(l => l.userId === session.id);
+    if (isDoctor()) {
+      // a doctor sees their own actions + system events about their own bookings only
+      const mine = l => l.meta && (l.meta.doctorId === session.doctorId || (l.meta.apptId && (get.appt(l.meta.apptId) || {}).doctorId === session.doctorId));
+      return db.logs.filter(l => l.userId === session.id || (l.userId === 'system' && mine(l)));
+    }
     return db.logs.filter(l => r.logDepts.includes(l.dept) || l.userId === session.id);
   }
 
   // ---------- logging & notifications
-  function log(dept, msg, meta) {
-    db.logs.push({ id: 'LG-' + (db.seq.log++), dept, userId: session ? session.id : 'system', msg, meta: meta || null, at: new Date().toISOString() });
+  // byId: 'system' for automatic events (platform bookings) so they are never attributed to whoever is signed in
+  function log(dept, msg, meta, byId) {
+    db.logs.push({ id: 'LG-' + (db.seq.log++), dept, userId: byId || (session ? session.id : 'system'), msg, meta: meta || null, at: new Date().toISOString() });
     if (db.logs.length > 1500) db.logs.splice(0, db.logs.length - 1500);
     save();
   }
@@ -83,7 +88,8 @@ window.Store = (function () {
   }
   function myNotifications() {
     if (!session) return [];
-    return db.notifications.filter(n => !n.doctorId || isAdmin() || session.role === 'reception' || n.doctorId === myDoctorId());
+    const NOTIF_ROLES = { booking: ['admin', 'reception', 'doctor'], stock: ['admin', 'store', 'reception'], invoice: ['admin', 'sales', 'reception', 'accountant'] };
+    return db.notifications.filter(n => (NOTIF_ROLES[n.kind] || ['admin']).includes(session.role) && (!isDoctor() || n.doctorId === myDoctorId()));
   }
 
   // ---------- money helpers
@@ -91,10 +97,14 @@ window.Store = (function () {
   const invBalance = inv => Math.max(0, invDue(inv) - (inv.paid || 0));
 
   // ---------- actions
-  function addPatient(data) {
+  function addPatient(data, opts) {
+    opts = opts || {};
     const id = 'P-' + (db.seq.pat += 7);
     const p = Object.assign({ id, allergies: [], chronic: [], prefs: [], blood: '', insurer: null, branch: 'b1', createdAt: new Date().toISOString(), notes: '' }, data);
-    db.patients.push(p); log('bookings', { ar: 'إضافة مريض جديد ' + id, en: 'New patient registered ' + id }); return p;
+    db.patients.push(p);
+    if (opts.system) log('bookings', { ar: `إنشاء ملف مريض جديد ${id} تلقائياً من حجز المنصة`, en: `Patient file ${id} created automatically from a platform booking` }, { doctorId: opts.doctorId }, 'system');
+    else log('bookings', { ar: 'إضافة مريض جديد ' + id, en: 'New patient registered ' + id });
+    return p;
   }
   function createAppointment(data, opts) {
     opts = opts || {};
@@ -106,7 +116,7 @@ window.Store = (function () {
     const pat = get.patient(a.patientId);
     if (opts.fromPlatform) {
       const c = get.connector(a.source); if (c) c.lastSync = new Date().toISOString();
-      log('integration', { ar: `حجز جديد من ${c ? c.nameAr : a.source} (${a.externalRef}) → ${doc.name.ar}`, en: `New ${c ? c.name : a.source} booking (${a.externalRef}) → ${doc.name.en}` }, { apptId: a.id });
+      log('integration', { ar: `حجز جديد من ${c ? c.nameAr : a.source} (${a.externalRef}) → ${doc.name.ar}`, en: `New ${c ? c.name : a.source} booking (${a.externalRef}) → ${doc.name.en}` }, { apptId: a.id, doctorId: doc.id }, 'system');
       notify({ kind: 'booking', source: a.source, doctorId: doc.id, apptId: a.id, title: { ar: 'حجز جديد من ' + (c ? c.nameAr : ''), en: 'New booking from ' + (c ? c.name : '') }, body: { ar: `${pat.name.ar} ← ${doc.name.ar}`, en: `${pat.name.en} → ${doc.name.en}` } });
     } else log('bookings', { ar: `حجز جديد ${a.id} للمريض ${pat.name.ar} مع ${doc.name.ar}`, en: `New booking ${a.id} for ${pat.name.en} with ${doc.name.en}` }, { apptId: a.id });
     save(); return a;

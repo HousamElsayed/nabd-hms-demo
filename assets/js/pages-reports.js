@@ -29,7 +29,7 @@ App.pages.performance = (function () {
          <button class="btn" id="perCsv">${icon('download')}${L('تصدير', 'Export')}</button><button class="btn primary" id="perPrint">${icon('printer')}${L('طباعة التقرير PDF', 'Print / PDF')}</button>`)}
       ${pending ? `<div class="callout tone-info" style="margin-bottom:16px">${icon('calendar-clock')}<div>${L(`الفترة الحالية لم تكتمل بعد — الأرقام حتى اليوم. سيصدر التقرير النهائي تلقائياً ويُرسل للمالك يوم ${UI.fdate(nextIssue, { day: 'numeric', month: 'long' })}.`, `This period is still running — figures are to date. The final report is generated automatically and sent to the owner on ${UI.fdate(nextIssue, { day: 'numeric', month: 'long' })}.`)}</div></div>` : ''}
       <div class="grid g4" style="margin-bottom:16px">
-        ${UI.kpi(L('المرضى المستقبَلين', 'Patients seen'), nf(sum('completed')), 'users', 'primary', `${nf(sum('booked'))} ${L('حجز', 'booked')} · ${nf(sum('newPatients'))} ${L('مريض جديد', 'new')}`)}
+        ${UI.kpi(L('المرضى الذين تم الكشف عليهم', 'Patients seen'), nf(sum('completed')), 'users', 'primary', `${nf(sum('booked'))} ${L('حجز', 'booked')} · ${nf(sum('newPatients'))} ${L('مريض جديد', 'new')}`)}
         ${UI.kpi(L('متوسط تقييم المرضى', 'Avg. patient rating'), `${nf(avgW('avgRating', 'completed'), 1)} / 5`, 'star', 'accent', `${L('نسبة التحسن', 'Improved')}: ${pct(avgW('improvedRate', 'completed'))}`)}
         ${UI.kpi(L('إيرادات الفترة', 'Period revenue'), money(sum('revenue')), 'trending-up', 'success', `${L('حصة المستشفى', 'Hospital share')}: ${money(sum('hospitalShare'))}`)}
         ${UI.kpi(isDoc ? L('نسبتي (عمولتي)', 'My share') : L('إجمالي نسب الأطباء', 'Total doctor shares'), money(sum('commission')), 'hand-coins', 'warning', isDoc ? `${docs[0].commission}% ${L('من الكشف والخدمات', 'of consultation & services')}` : L('تُحسب من كل حجز مكتمل', 'computed per completed booking'))}
@@ -42,17 +42,14 @@ App.pages.performance = (function () {
         { label: L('مؤشر الأداء', 'Score'), render: r => `<div style="min-width:110px"><div class="row between"><b style="color:${r.score >= 75 ? 'var(--success)' : r.score >= 60 ? 'var(--warning)' : 'var(--danger)'}">${nf(r.score)}</b>${delta(r.score, prevRows[r.doctor.id] && prevRows[r.doctor.id].score)}</div><div class="progress"><span style="width:${r.score}%;background:${r.score >= 75 ? 'var(--success)' : r.score >= 60 ? 'var(--warning)' : 'var(--danger)'}"></span></div></div>` },
         { label: L('المرضى', 'Patients'), render: r => `<b>${nf(r.completed)}</b><span class="muted xs"> / ${nf(r.booked)}</span><div>${delta(r.completed, prevRows[r.doctor.id] && prevRows[r.doctor.id].completed)}</div>` },
         { label: L('عدم الحضور', 'No-show'), render: r => `<span style="color:${r.noShowRate > 12 ? 'var(--danger)' : 'inherit'}">${pct(r.noShowRate)}</span>` },
-        { label: L('الإلغاء', 'Cancel'), render: r => pct(r.cancelRate) },
         { label: L('متوسط الانتظار', 'Avg wait'), render: r => `<span style="color:${r.avgWait > 25 ? 'var(--danger)' : 'inherit'}">${nf(r.avgWait)} ${L('د', 'm')}</span>` },
-        { label: L('مدة الكشف', 'Visit length'), render: r => `${nf(r.avgDur)} ${L('د', 'm')}` },
         { label: L('التقييم', 'Rating'), render: r => `<span style="color:${r.avgRating < 4 ? 'var(--danger)' : 'inherit'}">★ ${nf(r.avgRating, 1)}</span>` },
         { label: L('تحسن المرضى', 'Improved'), render: r => pct(r.improvedRate) },
-        { label: L('عودة المرضى', 'Returning'), render: r => nf(r.returning) },
         { label: L('الإشغال', 'Utilization'), render: r => pct(r.utilization) },
         { label: L('الإيراد', 'Revenue'), render: r => `<b>${money(r.revenue)}</b>` },
         { label: L('نسبة الطبيب', 'Doctor share'), render: r => `${money(r.commission)}<div class="cell-sub">${r.doctor.commission}%</div>` },
         { label: L('حصة المستشفى', 'Hospital'), render: r => money(r.hospitalShare) },
-        { label: '', render: r => `<button class="btn sm" data-doc="${r.doctor.id}">${icon('chart-spline')}${L('تفاصيل', 'Details')}</button>` }
+        { label: '', render: r => `<button class="btn sm icon" title="${L('تفاصيل الطبيب', 'Doctor details')}" data-doc="${r.doctor.id}">${icon('chart-spline')}</button>` }
       ], rows)}</div></div>
 
       <div class="grid g2">

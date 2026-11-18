@@ -166,7 +166,7 @@ window.Seed = (function () {
     const chronicPool = { car: [['ارتفاع ضغط الدم', 'Hypertension'], ['سكري نوع 2', 'Type 2 diabetes']], oph: [['جلوكوما', 'Glaucoma']], ort: [['خشونة المفاصل', 'Osteoarthritis']], der: [['إكزيما مزمنة', 'Chronic eczema']] };
     const patients = [];
     const deptIds = departments.map(d => d.id);
-    for (let i = 0; i < 90; i++) {
+    for (let i = 0; i < 300; i++) {
       const female = rnd() < .5;
       const f = pick(female ? fF : fM), mid = pick(fM), l = pick(lN);
       const prefs = [pick(deptIds)]; if (rnd() < .35) prefs.push(pick(deptIds));
@@ -319,26 +319,26 @@ window.Seed = (function () {
     const L = (dept, user, ar, en, offMin) => { const d = new Date(Date.now() - offMin * 60000); logs.push({ id: 'LG-' + (logs.length + 1), dept, userId: user, msg: T(ar, en), at: d.toISOString() }); };
     L('auth', 'u0', 'تسجيل دخول المدير', 'Admin signed in', 600);
     L('inventory', 'u11', 'استلام شحنة من المتحدة للأدوية (PO-1342)', 'Received shipment from United Pharma (PO-1342)', 540);
-    L('integration', 'u0', 'مزامنة ناجحة مع فيزيتا: 14 حجز جديد', 'Vezeeta sync OK: 14 new bookings', 480);
+    L('integration', 'system', 'مزامنة ناجحة مع فيزيتا: 14 حجز جديد', 'Vezeeta sync OK: 14 new bookings', 480);
     L('bookings', 'u9', 'تسجيل حضور مريض للحجز A-50211', 'Patient checked in for A-50211', 300);
     L('sales', 'u10', 'تحصيل فاتورة INV-30611 نقداً', 'Collected INV-30611 in cash', 240);
     L('medical', 'u1', 'إنهاء كشف وإضافة روشتة', 'Visit completed and prescription added', 200);
     L('inventory', 'u11', 'تنبيه: أقراص أسبرين 81 مجم نفدت من المخزن', 'Alert: Aspirin 81mg out of stock', 150);
     L('admin', 'u0', 'تعديل نسبة عمولة د. عمر خالد إلى 45%', "Changed Dr. Omar Khaled's commission to 45%", 120);
-    L('integration', 'u0', 'مزامنة ناجحة مع كلينيدو: 6 حجوزات', 'CliniDo sync OK: 6 bookings', 60);
+    L('integration', 'system', 'مزامنة ناجحة مع كلينيدو: 6 حجوزات', 'CliniDo sync OK: 6 bookings', 60);
     L('sales', 'u10', 'بيع باقة علاج طبيعي 10 جلسات', 'Sold physiotherapy 10-session package', 45);
     logs.sort((a, b) => a.at.localeCompare(b.at));
 
     return {
-      version: 1, generatedAt: new Date().toISOString(),
+      version: 3, generatedAt: new Date().toISOString(),
       hospital: { name: T('مستشفى النخبة التخصصي', 'Al Nokhba Specialized Hospital'), phone: '+20 2 2401 5500', address: T('شارع عباس العقاد، مدينة نصر، القاهرة', 'Abbas El-Akkad St, Nasr City, Cairo'), vat: 14 },
       branches, shifts, departments, doctors, users, services, packages, insurers, categories, products, patients,
       appointments, encounters, invoices, movements, prescriptions, labOrders, subscriptions, connectors, logs,
       progressNotes: [], notifications: [], expenses: [
-        { id: 'X1', cat: T('رواتب', 'Salaries'), amount: 385000 }, { id: 'X2', cat: T('إيجار ومرافق', 'Rent & utilities'), amount: 92000 },
-        { id: 'X3', cat: T('صيانة أجهزة', 'Equipment maintenance'), amount: 31000 }, { id: 'X4', cat: T('تسويق وعمولات المنصات', 'Marketing & platform fees'), amount: 27500 }
+        { id: 'X1', cat: T('رواتب', 'Salaries'), amount: 120000 }, { id: 'X2', cat: T('إيجار ومرافق', 'Rent & utilities'), amount: 45000 },
+        { id: 'X3', cat: T('صيانة أجهزة', 'Equipment maintenance'), amount: 12000 }, { id: 'X4', cat: T('تسويق وعمولات المنصات', 'Marketing & platform fees'), amount: 9500 }
       ],
-      seq: { appt: aSeq, enc: eSeq, inv: iSeq, mov: mSeq, rx: rxSeq, lab: labSeq, pat: 10230 + 90 * 7, log: logs.length + 1 }
+      seq: { appt: aSeq, enc: eSeq, inv: iSeq, mov: mSeq, rx: rxSeq, lab: labSeq, pat: 10230 + 300 * 7, log: logs.length + 1 }
     };
   }
   return { generate };

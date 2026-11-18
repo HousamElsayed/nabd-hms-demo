@@ -61,7 +61,7 @@ window.UI = (function () {
   function table(cols, rows, opts) {
     opts = opts || {};
     if (!rows.length) return empty(opts.empty);
-    return `<div class="table-wrap"><table class="tbl"><thead><tr>${cols.map(c => `<th${c.w ? ` style="width:${c.w}"` : ''}>${c.label}</th>`).join('')}</tr></thead><tbody>${rows.map((r, i) => `<tr${opts.rowAttr ? ' ' + opts.rowAttr(r, i) : ''}>${cols.map(c => `<td>${c.render(r, i)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+    return `<div class="table-wrap"><table class="tbl"><thead><tr>${cols.map(c => `<th${c.w ? ` style="width:${c.w}"` : ''}>${c.label}</th>`).join('')}</tr></thead><tbody>${rows.map((r, i) => `<tr${opts.rowAttr ? ' ' + opts.rowAttr(r, i) : ''}>${cols.map(c => `<td${c.cls ? ` class="${c.cls}"` : ''}>${c.render(r, i)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   }
   const options = (items, sel, allLabel) => (allLabel ? `<option value="">${allLabel}</option>` : '') + items.map(i => `<option value="${esc(i.id)}"${i.id === sel ? ' selected' : ''}>${esc(N(i.name))}</option>`).join('');
 

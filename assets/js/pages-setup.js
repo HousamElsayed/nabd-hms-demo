@@ -17,9 +17,10 @@ App.pages.departments = {
         </div>
         <div class="section-title" style="margin-top:14px">${L('الأطباء', 'Doctors')}</div>
         ${docs.map(x => `<div class="row" style="margin-bottom:6px">${UI.avatar(x.name)}<div class="grow"><div style="font-weight:600;font-size:13px">${esc(N(x.name))}</div><div class="xs muted">${esc(N(Store.get.branch(x.branch).name))}</div></div><span class="badge tone-muted">${icon('star', 'ic-sm')}${x.rating}</span></div>`).join('')}
-        <div class="row" style="margin-top:12px"><a class="btn sm" href="#/bookings" data-dept="${d.id}">${icon('calendar-check-2')}${L('حجوزات العيادة', 'Clinic bookings')}</a></div>
+        <div class="row" style="margin-top:12px"><a class="btn sm" href="#/bookings" data-godept="${d.id}">${icon('calendar-check-2')}${L('حجوزات العيادة', 'Clinic bookings')}</a></div>
       </div></div>`;
     }).join('')}</div>`;
+    el.querySelectorAll('[data-godept]').forEach(a => a.onclick = e => { e.preventDefault(); App.pages.bookings.open({ dept: a.dataset.godept }); });
   }
 };
 

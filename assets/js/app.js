@@ -242,7 +242,7 @@ window.App = (function () {
       const lasts = [['الدسوقي', 'El-Desouky'], ['الحسيني', 'El-Husseiny'], ['عبد العزيز', 'Abdelaziz'], ['المصري', 'El-Masry'], ['فهمي', 'Fahmy']];
       const n = names[Math.floor(Math.random() * names.length)], l = lasts[Math.floor(Math.random() * lasts.length)];
       const dob = new Date(); dob.setFullYear(dob.getFullYear() - (doc.dept === 'ped' ? 6 : 34));
-      pat = Store.addPatient({ name: { ar: n[0] + ' ' + l[0], en: n[1] + ' ' + l[1] }, gender: n[2], dob: dob.toISOString().slice(0, 10), phone: '+2011' + Math.floor(10000000 + Math.random() * 89999999), prefs: [doc.dept], source: c.id });
+      pat = Store.addPatient({ name: { ar: n[0] + ' ' + l[0], en: n[1] + ' ' + l[1] }, gender: n[2], dob: dob.toISOString().slice(0, 10), phone: '+2011' + Math.floor(10000000 + Math.random() * 89999999), prefs: [doc.dept], source: c.id }, { system: true, doctorId: doc.id });
     }
     const ref = c.id === 'vezeeta' ? 'VZ-' + Math.floor(8000000 + Math.random() * 999999) : c.id === 'clinido' ? 'CD-' + Math.floor(400000 + Math.random() * 99999) : c.id === 'ekshef' ? 'EK-' + Math.floor(100000 + Math.random() * 9999) : 'WEB-' + Math.floor(1000 + Math.random() * 8999);
     const appt = Store.createAppointment({ patientId: pat.id, doctorId: doc.id, start: slot.toISOString(), source: c.id, externalRef: ref, status: 'confirmed' }, { fromPlatform: true });
