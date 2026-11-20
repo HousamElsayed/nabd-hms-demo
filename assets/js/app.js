@@ -227,7 +227,7 @@ window.App = (function () {
     // find next free half-hour slot from now within shift (today, else tomorrow)
     let slot = null;
     for (let dayOff = 0; dayOff < 4 && !slot; dayOff++) {
-      const d = new Date(); d.setDate(d.getDate() + dayOff); if (d.getDay() === 5) continue;
+      const d = new Date(); d.setDate(d.getDate() + dayOff);
       for (let h = parseInt(sh.from); h < parseInt(sh.to); h += .5) {
         const t = new Date(d); t.setHours(Math.floor(h), (h % 1) * 60, 0, 0);
         if (t < new Date(Date.now() + 30 * 60000)) continue;

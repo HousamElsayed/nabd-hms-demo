@@ -11,7 +11,7 @@ window.Store = (function () {
   function load() {
     const raw = ls.get(KEY);
     if (raw) { try { db = JSON.parse(raw); } catch (e) { db = null; } }
-    if (!db || db.version !== 3 || isStale(db)) { db = Seed.generate(); save(); }
+    if (!db || db.version !== 4 || isStale(db)) { db = Seed.generate(); save(); }
     return db;
   }
   // regenerate if demo data was created on an earlier day so "today" always has activity

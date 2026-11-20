@@ -204,7 +204,7 @@ window.Seed = (function () {
 
     for (let off = -45; off <= 10; off++) {
       const day = new Date(today); day.setDate(day.getDate() + off);
-      if (day.getDay() === 5) continue; // Friday off
+      // hospital works 7 days a week
       doctors.forEach(doc => {
         const pf = prof[doc.id];
         let n = off === 0 ? ri(pf.load[0] + 3, pf.load[1] + 3) : off > 0 ? ri(0, pf.load[1] - 1) : ri(pf.load[0], pf.load[1]);
@@ -330,7 +330,7 @@ window.Seed = (function () {
     logs.sort((a, b) => a.at.localeCompare(b.at));
 
     return {
-      version: 3, generatedAt: new Date().toISOString(),
+      version: 4, generatedAt: new Date().toISOString(),
       hospital: { name: T('مستشفى النخبة التخصصي', 'Al Nokhba Specialized Hospital'), phone: '+20 2 2401 5500', address: T('شارع عباس العقاد، مدينة نصر، القاهرة', 'Abbas El-Akkad St, Nasr City, Cairo'), vat: 14 },
       branches, shifts, departments, doctors, users, services, packages, insurers, categories, products, patients,
       appointments, encounters, invoices, movements, prescriptions, labOrders, subscriptions, connectors, logs,
